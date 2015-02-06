@@ -1,13 +1,14 @@
 /* lexical grammar */
 %lex
 
+%x comment
 %x string
 
 %%
 
 [\n\r]                /* nuffn */
 \s+                   /* nothing */
-[-]?\d+                   return 'NUMBER'
+[-]?[0-9]+(\.[0-9]+)?                   return 'NUMBER'
 ";"                   return 'SEMICOLON'
 "TYPE"                 return 'TYPE'
 "END_TYPE"             return 'END_TYPE'
@@ -15,13 +16,17 @@
 "END_STRUCT"           return 'END_STRUCT'
 "ARRAY"               return 'ARRAY'
 "OF"                  return 'OF'
+"STRING"                return 'STRING'
 "["			return 'BRACKET_START'
 "]"                     return 'BRACKET_END'
 ".."                    return '..'
 ","                     return ','
+"(*"                  { this.begin("comment"); return undefined; }
+<comment>"*)"         { this.popState(); return undefined;}
+<comment>([^*]|\*[^)]|\*$)+           { console.log("===== Comment:" + yytext); return undefined;}
 "("			return '('
 ")"			return ')'
-(WORD|BOOL|INT|UINT|DWORD|REAL|SINT|T_MaxString) return 'SIMPLE_TYPE'
+(WORD|BOOL|INT|UINT|DWORD|REAL|SINT|TIME) return 'SIMPLE_TYPE'
 ":="                  return 'ASSIGN'
 ":"                   return 'DECLARE'
 ([a-zA-Z_0-9]+)              return 'VARIABLE'
@@ -123,15 +128,29 @@ struct_decl
     { $$ = $2 }
     ;
 
+type_assignment:
+    | ASSIGN NUMBER
+    { $$ = $2 }
+    ;
+
+string_type
+    : STRING
+    { $$ = { type: 'STRING' } }
+    | STRING "(" NUMBER ")"
+    { $$ = { type: 'STRING', length: $3 } }
+    ;
+
 main_types
     : enum_decl SEMICOLON
     { $$ = { type: 'ENUM', data: $1 } }
-    | SIMPLE_TYPE subrange_decl SEMICOLON
-    { $$ = { type: $1, subrange: $2 } }
-    | VARIABLE SEMICOLON
-    { $$ = { type: $1 } }
+    | SIMPLE_TYPE subrange_decl type_assignment SEMICOLON
+    { $$ = { type: $1, subrange: $2, assign: $3 } }
+    | VARIABLE type_assignment SEMICOLON
+    { $$ = { type: $1, assign: $2 } }
     | struct_decl
     { $$ = yy.IGNORE_THIS }
+    | string_type SEMICOLON
+    { $$ = $1 }
     ;
 
 type_declaration
