@@ -6,8 +6,10 @@
 
 %%
 
-[\n\r]                /* nuffn */
-\s+                   /* nothing */
+\n                    /* nothing */
+\r                    /* nothing */
+" "                      /* nothing */
+\t                      /* nothing */
 [-]?[0-9]+(\.[0-9]+)?                   return 'NUMBER'
 ";"                   return 'SEMICOLON'
 "TYPE"                 return 'TYPE'

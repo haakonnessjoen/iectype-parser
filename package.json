@@ -1,0 +1,24 @@
+{
+  "name": "iectype-parser",
+  "version": "1.0.0",
+  "description": "## Using Jison",
+  "main": "test.js",
+  "scripts": {
+    "start": "jison < iectest.jison > iectest.js ; node test",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haakonnessjoen/iectype-parser.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/haakonnessjoen/iectype-parser/issues"
+  },
+  "homepage": "https://github.com/haakonnessjoen/iectype-parser#readme",
+  "dependencies": {
+    "jison": "^0.4.18"
+  }
+}
